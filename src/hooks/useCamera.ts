@@ -8,6 +8,7 @@ interface CameraHookResult {
     videoRef: React.RefObject<HTMLVideoElement>;
     canvasRef: React.RefObject<HTMLCanvasElement>;
     dimensions: { width: number; height: number };
+    isCameraReady: boolean | null;
     error: string | null;
 }
 
@@ -19,6 +20,7 @@ export const useCamera = (): CameraHookResult => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [error, setError] = useState<string | null>(null);
     const [dimensions, setDimensions] = useState({ width: VIDEO_WIDTH, height: VIDEO_HEIGHT });
+    const [isCameraReady, setIsCameraReady] = useState(false);
 
     useEffect(() => {
         const setupCamera = async () => {
@@ -47,6 +49,7 @@ export const useCamera = (): CameraHookResult => {
                     canvasRef.current!.width = actualWidth;
                     canvasRef.current!.height = actualHeight;
                     setDimensions({ width: actualWidth, height: actualHeight });
+                    setIsCameraReady(true);
                     
                     console.log(`Caméra démarrée. Dimensions: ${actualWidth}x${actualHeight}.`);
                     setError(null);
@@ -67,5 +70,5 @@ export const useCamera = (): CameraHookResult => {
         };
     }, []);
 
-    return { videoRef, canvasRef, dimensions, error };
+    return { videoRef, canvasRef, dimensions, isCameraReady, error };
 };
