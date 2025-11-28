@@ -1,5 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCamera } from '../hooks/useCamera';
+import { useFaceLandmarker } from '../hooks/useFaceLandmarker';
+import { useFaceDetection } from '../hooks/useFaceDetection';
 
 interface CameraFeedProps {
     instruction: string; 
@@ -15,17 +17,35 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ instruction }) => {
     const message = error
         ? `❌ Erreur: ${error}`
         : "Chargement de la caméra...";
+
+
+    const { faceLandmarker, isLandmarkerReady, landmarkerError } = useFaceLandmarker();
     
-    // Affichage de l'erreur
-   /* if (error) {
-        return (
-            <div className="flex justify-center items-center h-screen bg-red-100 text-red-800 text-center p-8">
-                <p className="border border-red-400 p-4 rounded-lg shadow-md">
-                    ❌ Erreur Caméra : {error}
-                </p>
-            </div>
-        );
-    }*/
+    // État pour contrôler si l'analyse est active
+    const [isRunning, setIsRunning] = useState(false); 
+
+    useEffect(() => {
+        const startCamera = async () => {
+            if (videoRef.current) {
+                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                 videoRef.current.srcObject = stream;
+            }
+        };
+
+        if (isLandmarkerReady) {
+            startCamera();
+            setIsRunning(true)
+        }
+        
+    }, [isLandmarkerReady]);
+
+    useFaceDetection({ 
+        faceLandmarker, 
+        videoRef, 
+        canvasRef, 
+        isLandmarkerReady,
+        isRunning // L'analyse n'est active que si isRunning est true
+    });
 
     return (
         <div style={{ position: 'relative', width: dimensions.width, height: dimensions.height }}>
@@ -52,7 +72,6 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ instruction }) => {
                 </div>
             )}
             
-            {/* Balise Vidéo */}
             <video
                 ref={videoRef}
                 width={dimensions.width}
@@ -64,7 +83,6 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ instruction }) => {
                 style={{ transform: 'scaleX(-1)' }}
             />
             
-            {/* Canvas (peut être retiré si vous ne dessinez rien) */}
             <canvas
                 ref={canvasRef}
                 width={dimensions.width}

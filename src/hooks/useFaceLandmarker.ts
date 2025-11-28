@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react';
 
 // Nous utilisons l'import dynamique pour obtenir les classes
 // La librairie NPM est utilisée, ce qui résout le problème MIME Type.
-const MEDIA_PIPE_TASKS = '@mediapipe/tasks-vision';
+const MEDIA_PIPE_TASKS = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3';
 
 // Le chemin WASM doit pointer vers l'emplacement dans node_modules
 // Cette URL est souvent le point faible. Nous utilisons le chemin standard recommandé pour les bundles.
-const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"; 
+const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"; 
 // On garde cette URL car elle est servie avec le bon MIME Type et ne dépend pas du système de fichiers local.
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 
+const VIDEO_MODE = "VIDEO"; 
+const DELEGATION = "GPU";
 
 interface FaceLandmarkerHookResult {
     faceLandmarker: FaceLandmarker | null;
@@ -21,27 +23,31 @@ interface FaceLandmarkerHookResult {
 export const useFaceLandmarker = () => {
     const [faceLandmarker, setFaceLandmarker] = useState(null);
     const [isLandmarkerReady, setIsLandmarkerReady] = useState(false);
-    const [landmarkerError, setLandmarkerError] = useState(null);
+    const [landmarkerError, setLandmarkerError] = useState<string|null>(null);
 
     useEffect(() => {
         const loadLandmarker = async () => {
             try {
                 // Importation dynamique pour obtenir l'objet complet de MediaPipe
-                const mpVision = await import(MEDIA_PIPE_TASKS);
+                const mpVision = await import( /* @vite-ignore */ MEDIA_PIPE_TASKS);
                 
                 // Utilisation des classes importées
                 const FilesetResolver = mpVision.FilesetResolver;
                 const FaceLandmarker = mpVision.FaceLandmarker;
-                const VisionRunningMode = mpVision.VisionRunningMode;
                 
                 // 1. Initialiser le Resolver
                 const filesetResolver = await FilesetResolver.forVisionTasks(WASM_URL);
 
                 // 2. Créer l'objet FaceLandmarker
-                const landmarker = await FaceLandmarker.create(filesetResolver, {
-                    baseOptions: { modelAssetPath: MODEL_URL },
-                    runningMode: VisionRunningMode.VIDEO, 
-                    numFaces: 1
+                const landmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+                    baseOptions: { 
+                        modelAssetPath: MODEL_URL,
+                        delegate: DELEGATION,
+                    },
+                    runningMode: VIDEO_MODE, 
+                    numFaces: 1,
+                    outputFaceBlendshapes: true,
+                    outputFacialTransformationMatrixes: true,
                 });
                 
                 setFaceLandmarker(landmarker);
