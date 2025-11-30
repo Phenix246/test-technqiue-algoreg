@@ -35,6 +35,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ instruction }) => {
         if (isLandmarkerReady) {
             startCamera();
             setIsRunning(true)
+            
         }
         
     }, [isLandmarkerReady]);
@@ -44,8 +45,9 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ instruction }) => {
         videoRef, 
         canvasRef, 
         isLandmarkerReady,
-        isRunning // L'analyse n'est active que si isRunning est true
+        isRunning 
     });
+
 
     return (
         <div style={{ position: 'relative', width: dimensions.width, height: dimensions.height }}>

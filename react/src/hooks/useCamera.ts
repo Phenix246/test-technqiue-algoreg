@@ -70,5 +70,6 @@ export const useCamera = (): CameraHookResult => {
         };
     }, []);
 
+    console.log("✅ Caméra prête.");
     return { videoRef, canvasRef, dimensions, isCameraReady, error };
 };

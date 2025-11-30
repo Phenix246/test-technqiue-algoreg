@@ -1,0 +1,50 @@
+#webcam, 
+#output_canvas {
+  /* Assurez-vous que les deux sont positionnés de manière absolue */
+  position: absolute; 
+  left: 0px; 
+  top: 0px;
+
+  /* Donnez-leur une taille visible et identique */
+  width: 640px; 
+  height: 480px;
+
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+}
+
+.webcam-box {
+    position: relative;
+    border: solid 5px grey;
+    border-top: solid 40px grey;
+    border-bottom: solid 40px grey;
+    border-radius: 20px;
+    box-sizing: content-box;
+}
+
+main {
+  display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+
+main > div {
+  /* Le conteneur doit être relatif pour que les enfants absolus s'y réfèrent */
+  position: relative;
+  /* La taille du conteneur doit être la même que la vidéo/canvas */
+  width: 640px; 
+  height: 480px;
+}
+
+main {
+  height: 100vh;
+}
+
+#instruction {
+  text-align: center;
+  display: block;
+  position: relative;
+  font-size: 2rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
